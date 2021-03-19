@@ -31,9 +31,9 @@ public class ArquivoService {
     private TipoArquivoRepository tipoArquivoRepository;
 
     @Transactional
-    public void salvar(MultipartFile[] files, Long codigoTipoArquivo) {
+    public void salvar(MultipartFile[] files) {
         for (MultipartFile file : files) {
-            this.salvar(file, codigoTipoArquivo);
+            this.salvar(file);
         }
     }
 
@@ -49,24 +49,36 @@ public class ArquivoService {
         }
     }
 
-    private Arquivo salvar(MultipartFile multipartFile, Long codigoTipoArquivo) {
+    private void salvar(MultipartFile multipartFile) {
+        TipoArquivo tipoArquivo = getTipoArquivo(multipartFile);
+        salvarFisicamente(tipoArquivo, multipartFile);
+        salvarArquivo(multipartFile, tipoArquivo);
+    }
+
+    private TipoArquivo getTipoArquivo(MultipartFile multipartFile) {
+        String contentType = multipartFile.getContentType();
+        return tipoArquivoRepository.findByContentType(contentType)
+                .orElseThrow(() -> new IllegalArgumentException("Tipo de arquivo não mapeado"));
+    }
+
+    private void salvarFisicamente(TipoArquivo tipoArquivo, MultipartFile multipartFile) {
         try {
-            TipoArquivo tipoArquivo = tipoArquivoRepository.findById(codigoTipoArquivo)
-                    .orElseThrow(() -> new IllegalArgumentException("Código de tipo de arquivo inválido"));
             File file = new File(tipoArquivo.getCaminhoArmazenamento(), Objects.requireNonNull(multipartFile.getOriginalFilename()));
             FileUtils.writeByteArrayToFile(file, multipartFile.getBytes());
-            Arquivo arquivo = new Arquivo();
-            arquivo.setContentType(multipartFile.getContentType());
-            arquivo.setDataHoraUpload(new Date());
-            arquivo.setNomeArquivo(multipartFile.getOriginalFilename());
-            arquivo.setTamanho(multipartFile.getSize());
-            arquivo.setTipoArquivo(tipoArquivo);
-            arquivoRepository.save(arquivo);
-            return arquivo;
         } catch (IOException e) {
             LOG.error(e.getMessage());
             throw new IllegalArgumentException("Não foi possivel armazenar o arquivo ");
         }
+    }
+
+    private void salvarArquivo(MultipartFile multipartFile, TipoArquivo tipoArquivo) {
+        Arquivo arquivo = new Arquivo();
+        arquivo.setContentType(multipartFile.getContentType());
+        arquivo.setDataHoraUpload(new Date());
+        arquivo.setNomeArquivo(multipartFile.getOriginalFilename());
+        arquivo.setTamanho(multipartFile.getSize());
+        arquivo.setTipoArquivo(tipoArquivo);
+        arquivoRepository.save(arquivo);
     }
 
 }

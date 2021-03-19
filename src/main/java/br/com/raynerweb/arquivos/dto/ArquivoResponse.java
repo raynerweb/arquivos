@@ -1,7 +1,5 @@
 package br.com.raynerweb.arquivos.dto;
 
-import br.com.raynerweb.arquivos.entity.Arquivo;
-
 public class ArquivoResponse {
     private byte[] bytes;
     private String nomeArquivo;
