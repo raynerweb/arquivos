@@ -1,5 +1,6 @@
 package br.com.raynerweb.arquivos.rest;
 
+import br.com.raynerweb.arquivos.dto.ArquivoResponse;
 import br.com.raynerweb.arquivos.entity.Arquivo;
 import br.com.raynerweb.arquivos.service.ArquivoService;
 import org.apache.commons.io.IOUtils;
@@ -26,13 +27,12 @@ public class ArquivoRest {
 
     @GetMapping("{id}")
     public void get(@PathVariable Long id, HttpServletResponse response) {
-        ArquivoService.ArquivoResponse arquivoResponse = arquivoService.recuperar(id);
-        Arquivo arquivo = arquivoResponse.getArquivo();
+        ArquivoResponse arquivo = arquivoService.recuperar(id);
         response.setHeader("Content-disposition", "attachment; filename=" + arquivo.getNomeArquivo());
         response.setHeader("Cache-Control", "max-age=86400, public");
         response.setContentType(arquivo.getContentType());
         try {
-            IOUtils.copy(new ByteArrayInputStream(arquivoResponse.getBytes()), response.getOutputStream());
+            IOUtils.copy(new ByteArrayInputStream(arquivo.getBytes()), response.getOutputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,5 +1,6 @@
 package br.com.raynerweb.arquivos.service;
 
+import br.com.raynerweb.arquivos.dto.ArquivoResponse;
 import br.com.raynerweb.arquivos.entity.Arquivo;
 import br.com.raynerweb.arquivos.entity.TipoArquivo;
 import br.com.raynerweb.arquivos.repository.ArquivoRepository;
@@ -40,7 +41,7 @@ public class ArquivoService {
         try {
             Arquivo arquivo = arquivoRepository.findById(idArquivo).orElseThrow(() -> new IllegalArgumentException("Arquivo não encontrado"));
             String caminhoArquivo = arquivo.getTipoArquivo().getCaminhoArmazenamento() + arquivo.getNomeArquivo();
-            return new ArquivoResponse(FileUtils.readFileToByteArray(new File(caminhoArquivo)), arquivo);
+            return new ArquivoResponse(FileUtils.readFileToByteArray(new File(caminhoArquivo)), arquivo.getNomeArquivo(), arquivo.getContentType());
         } catch (FileNotFoundException e) {
             throw new IllegalArgumentException("Arquivo não encontrado");
         } catch (IOException e) {
@@ -68,29 +69,4 @@ public class ArquivoService {
         }
     }
 
-    public class ArquivoResponse {
-        private byte[] bytes;
-        private Arquivo arquivo;
-
-        public ArquivoResponse(byte[] bytes, Arquivo arquivo) {
-            this.bytes = bytes;
-            this.arquivo = arquivo;
-        }
-
-        public byte[] getBytes() {
-            return bytes;
-        }
-
-        public void setBytes(byte[] bytes) {
-            this.bytes = bytes;
-        }
-
-        public Arquivo getArquivo() {
-            return arquivo;
-        }
-
-        public void setArquivo(Arquivo arquivo) {
-            this.arquivo = arquivo;
-        }
-    }
 }
