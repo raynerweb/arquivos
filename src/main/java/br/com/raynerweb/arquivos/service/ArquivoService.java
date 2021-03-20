@@ -4,7 +4,6 @@ import br.com.raynerweb.arquivos.dto.ArquivoResponse;
 import br.com.raynerweb.arquivos.entity.Arquivo;
 import br.com.raynerweb.arquivos.entity.TipoArquivo;
 import br.com.raynerweb.arquivos.repository.ArquivoRepository;
-import br.com.raynerweb.arquivos.repository.TipoArquivoRepository;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +26,14 @@ public class ArquivoService {
     @Autowired
     private ArquivoRepository arquivoRepository;
 
+    /**
+     * READ
+     * (S) OLID :: Single Responsibility Principle
+     * O metodo de recuperar tipoArquivo pertence à service TipoArquivo
+     * e sua regra de recuperacao nao deve estar aqui
+     */
     @Autowired
-    private TipoArquivoRepository tipoArquivoRepository;
+    private TipoArquivoService tipoArquivoService;
 
     @Transactional
     public void salvar(MultipartFile[] files) {
@@ -50,15 +55,9 @@ public class ArquivoService {
     }
 
     private void salvar(MultipartFile multipartFile) {
-        TipoArquivo tipoArquivo = getTipoArquivo(multipartFile);
+        TipoArquivo tipoArquivo = tipoArquivoService.getTipoArquivo(multipartFile.getContentType());
         salvarFisicamente(tipoArquivo, multipartFile);
         salvarArquivo(multipartFile, tipoArquivo);
-    }
-
-    private TipoArquivo getTipoArquivo(MultipartFile multipartFile) {
-        String contentType = multipartFile.getContentType();
-        return tipoArquivoRepository.findByContentType(contentType)
-                .orElseThrow(() -> new IllegalArgumentException("Tipo de arquivo não mapeado"));
     }
 
     private void salvarFisicamente(TipoArquivo tipoArquivo, MultipartFile multipartFile) {
