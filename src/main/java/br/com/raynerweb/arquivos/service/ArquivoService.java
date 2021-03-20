@@ -3,6 +3,7 @@ package br.com.raynerweb.arquivos.service;
 import br.com.raynerweb.arquivos.dto.ArquivoResponse;
 import br.com.raynerweb.arquivos.entity.Arquivo;
 import br.com.raynerweb.arquivos.entity.TipoArquivo;
+import br.com.raynerweb.arquivos.repository.ArquivoBinarioRepository;
 import br.com.raynerweb.arquivos.repository.ArquivoRepository;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -16,7 +17,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Objects;
 
 @Service
 public class ArquivoService {
@@ -25,6 +25,9 @@ public class ArquivoService {
 
     @Autowired
     private ArquivoRepository arquivoRepository;
+
+    @Autowired
+    private ArquivoBinarioRepository arquivoBinarioRepository;
 
     /**
      * READ
@@ -56,18 +59,8 @@ public class ArquivoService {
 
     private void salvar(MultipartFile multipartFile) {
         TipoArquivo tipoArquivo = tipoArquivoService.getTipoArquivo(multipartFile.getContentType());
-        salvarFisicamente(tipoArquivo, multipartFile);
+        arquivoBinarioRepository.salvar(multipartFile, tipoArquivo);
         salvarArquivo(multipartFile, tipoArquivo);
-    }
-
-    private void salvarFisicamente(TipoArquivo tipoArquivo, MultipartFile multipartFile) {
-        try {
-            File file = new File(tipoArquivo.getCaminhoArmazenamento(), Objects.requireNonNull(multipartFile.getOriginalFilename()));
-            FileUtils.writeByteArrayToFile(file, multipartFile.getBytes());
-        } catch (IOException e) {
-            LOG.error(e.getMessage());
-            throw new IllegalArgumentException("Não foi possivel armazenar o arquivo ");
-        }
     }
 
     private void salvarArquivo(MultipartFile multipartFile, TipoArquivo tipoArquivo) {

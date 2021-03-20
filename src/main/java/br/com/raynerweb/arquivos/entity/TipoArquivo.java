@@ -54,4 +54,5 @@ public class TipoArquivo {
     public void setContentType(String contentType) {
         this.contentType = contentType;
     }
+
 }
