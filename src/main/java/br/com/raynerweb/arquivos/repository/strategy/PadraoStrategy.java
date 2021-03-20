@@ -1,6 +1,8 @@
-package br.com.raynerweb.arquivos.repository;
+package br.com.raynerweb.arquivos.repository.strategy;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -8,11 +10,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
-@Component("arquivoPadrao")
-public class ArquivoPadraoRepository implements ArquivoFisicoRepository {
+@Component
+public class PadraoStrategy implements ArquivoBinarioStrategy {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PadraoStrategy.class);
 
     @Override
     public void salvar(MultipartFile multipartFile, String destino) {
+        LOG.warn("SALVANDO ARQUIVO PADRAO");
         try {
             criarDiretorioDestino(destino);
 

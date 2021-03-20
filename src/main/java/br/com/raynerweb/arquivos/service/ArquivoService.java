@@ -3,7 +3,7 @@ package br.com.raynerweb.arquivos.service;
 import br.com.raynerweb.arquivos.dto.ArquivoResponse;
 import br.com.raynerweb.arquivos.entity.Arquivo;
 import br.com.raynerweb.arquivos.entity.TipoArquivo;
-import br.com.raynerweb.arquivos.repository.ArquivoFisicoRepository;
+import br.com.raynerweb.arquivos.repository.ArquivoBinarioRepository;
 import br.com.raynerweb.arquivos.repository.ArquivoRepository;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class ArquivoService {
     private ArquivoRepository arquivoRepository;
 
     @Autowired
-    private ArquivoFisicoRepository arquivoFisicoRepository;
+    private ArquivoBinarioRepository arquivoBinarioRepository;
 
     /**
      * READ
@@ -59,7 +59,7 @@ public class ArquivoService {
 
     private void salvar(MultipartFile multipartFile) {
         TipoArquivo tipoArquivo = tipoArquivoService.getTipoArquivo(multipartFile.getContentType());
-        arquivoFisicoRepository.salvar(multipartFile, tipoArquivo.getCaminhoArmazenamento());
+        arquivoBinarioRepository.salvar(multipartFile, tipoArquivo);
         salvarArquivo(multipartFile, tipoArquivo);
     }
 
