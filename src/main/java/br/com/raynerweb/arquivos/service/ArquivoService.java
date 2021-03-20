@@ -4,7 +4,6 @@ import br.com.raynerweb.arquivos.dto.ArquivoResponse;
 import br.com.raynerweb.arquivos.entity.Arquivo;
 import br.com.raynerweb.arquivos.entity.TipoArquivo;
 import br.com.raynerweb.arquivos.repository.ArquivoRepository;
-import br.com.raynerweb.arquivos.repository.TipoArquivoRepository;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +26,19 @@ public class ArquivoService {
     @Autowired
     private ArquivoRepository arquivoRepository;
 
+    /**
+     * READ
+     * (S) OLID :: Single Responsibility Principle
+     * O metodo de recuperar tipoArquivo pertence à service TipoArquivo
+     * e sua regra de recuperacao nao deve estar aqui
+     */
     @Autowired
-    private TipoArquivoRepository tipoArquivoRepository;
+    private TipoArquivoService tipoArquivoService;
 
     @Transactional
-    public void salvar(MultipartFile[] files, Long codigoTipoArquivo) {
+    public void salvar(MultipartFile[] files) {
         for (MultipartFile file : files) {
-            this.salvar(file, codigoTipoArquivo);
+            this.salvar(file);
         }
     }
 
@@ -49,24 +54,30 @@ public class ArquivoService {
         }
     }
 
-    private Arquivo salvar(MultipartFile multipartFile, Long codigoTipoArquivo) {
+    private void salvar(MultipartFile multipartFile) {
+        TipoArquivo tipoArquivo = tipoArquivoService.getTipoArquivo(multipartFile.getContentType());
+        salvarFisicamente(tipoArquivo, multipartFile);
+        salvarArquivo(multipartFile, tipoArquivo);
+    }
+
+    private void salvarFisicamente(TipoArquivo tipoArquivo, MultipartFile multipartFile) {
         try {
-            TipoArquivo tipoArquivo = tipoArquivoRepository.findById(codigoTipoArquivo)
-                    .orElseThrow(() -> new IllegalArgumentException("Código de tipo de arquivo inválido"));
             File file = new File(tipoArquivo.getCaminhoArmazenamento(), Objects.requireNonNull(multipartFile.getOriginalFilename()));
             FileUtils.writeByteArrayToFile(file, multipartFile.getBytes());
-            Arquivo arquivo = new Arquivo();
-            arquivo.setContentType(multipartFile.getContentType());
-            arquivo.setDataHoraUpload(new Date());
-            arquivo.setNomeArquivo(multipartFile.getOriginalFilename());
-            arquivo.setTamanho(multipartFile.getSize());
-            arquivo.setTipoArquivo(tipoArquivo);
-            arquivoRepository.save(arquivo);
-            return arquivo;
         } catch (IOException e) {
             LOG.error(e.getMessage());
             throw new IllegalArgumentException("Não foi possivel armazenar o arquivo ");
         }
+    }
+
+    private void salvarArquivo(MultipartFile multipartFile, TipoArquivo tipoArquivo) {
+        Arquivo arquivo = new Arquivo();
+        arquivo.setContentType(multipartFile.getContentType());
+        arquivo.setDataHoraUpload(new Date());
+        arquivo.setNomeArquivo(multipartFile.getOriginalFilename());
+        arquivo.setTamanho(multipartFile.getSize());
+        arquivo.setTipoArquivo(tipoArquivo);
+        arquivoRepository.save(arquivo);
     }
 
 }

@@ -1,5 +1,6 @@
 package br.com.raynerweb.arquivos.rest;
 
+import br.com.raynerweb.arquivos.entity.TipoArquivo;
 import br.com.raynerweb.arquivos.repository.TipoArquivoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +18,8 @@ public class TipoArquivoRest {
     private TipoArquivoRepository repository;
 
     @GetMapping
-    public List<Long> get() {
-        return repository.findAll().stream().map(tipoArquivo -> tipoArquivo.getId()).collect(Collectors.toList());
+    public List<String> get() {
+        return repository.findAll().stream().map(TipoArquivo::getContentType).collect(Collectors.toList());
     }
 
 }
