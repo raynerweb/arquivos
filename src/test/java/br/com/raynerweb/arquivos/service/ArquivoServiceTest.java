@@ -2,9 +2,7 @@ package br.com.raynerweb.arquivos.service;
 
 import br.com.raynerweb.arquivos.dto.ArquivoResponse;
 import br.com.raynerweb.arquivos.entity.Arquivo;
-import br.com.raynerweb.arquivos.entity.TipoArquivo;
 import br.com.raynerweb.arquivos.repository.ArquivoRepository;
-import br.com.raynerweb.arquivos.repository.TipoArquivoRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -18,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Date;
 
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -29,19 +27,15 @@ public class ArquivoServiceTest {
     private ArquivoRepository repository;
 
     @Mock
-    private TipoArquivoRepository tipoArquivoRepository;
+    private ArquivoBinarioRepository arquivoBinarioRepository;
 
     @InjectMocks
     private ArquivoService service;
 
     @Test
     public void deveSalvarArquivoSuportado() {
-        TipoArquivo tipoArquivo = new TipoArquivo();
-        tipoArquivo.setId(1L);
-        tipoArquivo.setDescricao("Descriçao");
-        tipoArquivo.setCaminhoArmazenamento("/tmp/txt");
-        tipoArquivo.setContentType("plain/text");
-        when(tipoArquivoRepository.findByContentType(any())).thenReturn(java.util.Optional.of(tipoArquivo));
+        String destino = "src/test/resources/";
+        when(arquivoBinarioRepository.getDestino(anyString())).thenReturn(destino);
 
         MockMultipartFile file
                 = new MockMultipartFile(
@@ -54,8 +48,9 @@ public class ArquivoServiceTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void arquivoNaoSuportadoNaoPodeSerSalvo() {
-        when(tipoArquivoRepository.findByContentType(any())).thenReturn(java.util.Optional.empty());
+    public void arquivoInfectadoNaoPodeSerSalvo() {
+        String destino = "src/test/resources/";
+        when(arquivoBinarioRepository.getDestino(anyString())).thenReturn(destino);
 
         MockMultipartFile file
                 = new MockMultipartFile(
@@ -64,12 +59,14 @@ public class ArquivoServiceTest {
                 MediaType.TEXT_PLAIN_VALUE,
                 "Hello, World!".getBytes()
         );
-
         service.salvar(new MultipartFile[]{file});
     }
 
     @Test
     public void deveRecuperarArquivo() {
+        String destino = "src/test/resources/";
+        when(arquivoBinarioRepository.getDestino(anyString())).thenReturn(destino);
+
         Arquivo arquivo = getArquivo();
         when(repository.findById(10L)).thenReturn(java.util.Optional.of(arquivo));
         ArquivoResponse arquivoResponse = service.recuperar(10L);
@@ -77,13 +74,7 @@ public class ArquivoServiceTest {
     }
 
     private Arquivo getArquivo() {
-        TipoArquivo tipoArquivo = new TipoArquivo();
-        tipoArquivo.setCaminhoArmazenamento("src/test/resources/");
-        tipoArquivo.setDescricao("Arquivo de Texto");
-        tipoArquivo.setId(1L);
-
         Arquivo arquivo = new Arquivo();
-        arquivo.setTipoArquivo(tipoArquivo);
         arquivo.setNomeArquivo("arquivo.txt");
         arquivo.setContentType("plain/txt");
         arquivo.setTamanho(123L);
