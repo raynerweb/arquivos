@@ -3,6 +3,7 @@ package br.com.raynerweb.arquivos.service;
 import br.com.raynerweb.arquivos.dto.ArquivoResponse;
 import br.com.raynerweb.arquivos.entity.Arquivo;
 import br.com.raynerweb.arquivos.repository.ArquivoRepository;
+import br.com.raynerweb.arquivos.repository.SistemaArquivosRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -13,6 +14,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.util.Date;
 
 import static org.junit.Assert.assertNotNull;
@@ -27,15 +30,15 @@ public class ArquivoServiceTest {
     private ArquivoRepository repository;
 
     @Mock
-    private ArquivoBinarioRepository arquivoBinarioRepository;
+    private SistemaArquivosRepository sistemaArquivosRepository;
 
     @InjectMocks
     private ArquivoService service;
 
     @Test
     public void deveSalvarArquivoSuportado() {
-        String destino = "src/test/resources/";
-        when(arquivoBinarioRepository.getDestino(anyString())).thenReturn(destino);
+//        String destino = "src/test/resources/";
+//        when(sistemaArquivosRepository.getDestino(anyString())).thenReturn(destino);
 
         MockMultipartFile file
                 = new MockMultipartFile(
@@ -49,8 +52,8 @@ public class ArquivoServiceTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void arquivoInfectadoNaoPodeSerSalvo() {
-        String destino = "src/test/resources/";
-        when(arquivoBinarioRepository.getDestino(anyString())).thenReturn(destino);
+//        String destino = "src/test/resources/";
+//        when(sistemaArquivosRepository.getDestino(anyString())).thenReturn(destino);
 
         MockMultipartFile file
                 = new MockMultipartFile(
@@ -63,9 +66,9 @@ public class ArquivoServiceTest {
     }
 
     @Test
-    public void deveRecuperarArquivo() {
-        String destino = "src/test/resources/";
-        when(arquivoBinarioRepository.getDestino(anyString())).thenReturn(destino);
+    public void deveRecuperarArquivo() throws MalformedURLException {
+        File file = new File("src/test/resources/arquivo.txt");
+        when(sistemaArquivosRepository.recuperar(anyString())).thenReturn(file);
 
         Arquivo arquivo = getArquivo();
         when(repository.findById(10L)).thenReturn(java.util.Optional.of(arquivo));
