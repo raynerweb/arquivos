@@ -4,6 +4,7 @@ import br.com.raynerweb.arquivos.dto.ArquivoResponse;
 import br.com.raynerweb.arquivos.entity.Arquivo;
 import br.com.raynerweb.arquivos.repository.ArquivoRepository;
 import br.com.raynerweb.arquivos.repository.SistemaArquivosRepository;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -15,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Date;
 
@@ -37,9 +39,6 @@ public class ArquivoServiceTest {
 
     @Test
     public void deveSalvarArquivoSuportado() {
-//        String destino = "src/test/resources/";
-//        when(sistemaArquivosRepository.getDestino(anyString())).thenReturn(destino);
-
         MockMultipartFile file
                 = new MockMultipartFile(
                 "file",
@@ -51,16 +50,14 @@ public class ArquivoServiceTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void arquivoInfectadoNaoPodeSerSalvo() {
-//        String destino = "src/test/resources/";
-//        when(sistemaArquivosRepository.getDestino(anyString())).thenReturn(destino);
-
+    public void arquivoInfectadoNaoPodeSerSalvo() throws IOException {
+        File virus = new File("src/test/resources/virus.txt");
         MockMultipartFile file
                 = new MockMultipartFile(
                 "file",
-                "hello.txt",
+                "virus.txt",
                 MediaType.TEXT_PLAIN_VALUE,
-                "Hello, World!".getBytes()
+                FileUtils.readFileToByteArray(virus)
         );
         service.salvar(new MultipartFile[]{file});
     }
