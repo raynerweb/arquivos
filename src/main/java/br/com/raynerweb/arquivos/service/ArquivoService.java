@@ -1,5 +1,6 @@
 package br.com.raynerweb.arquivos.service;
 
+import br.com.raynerweb.arquivos.component.AntivirusComponent;
 import br.com.raynerweb.arquivos.dto.ArquivoResponse;
 import br.com.raynerweb.arquivos.entity.Arquivo;
 import br.com.raynerweb.arquivos.repository.ArquivoRepository;
@@ -28,6 +29,9 @@ public class ArquivoService {
     @Autowired
     private SistemaArquivosRepository sistemaArquivosRepository;
 
+    @Autowired
+    private AntivirusComponent antivirus;
+
     @Transactional
     public void salvar(MultipartFile[] files) {
         for (MultipartFile file : files) {
@@ -52,6 +56,7 @@ public class ArquivoService {
     }
 
     private void salvar(MultipartFile multipartFile) {
+        antivirus.verifyMultipartFile(multipartFile);
         sistemaArquivosRepository.salvar(multipartFile);
         salvarArquivo(multipartFile);
     }

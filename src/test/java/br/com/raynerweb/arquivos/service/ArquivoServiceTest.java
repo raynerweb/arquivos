@@ -1,7 +1,9 @@
 package br.com.raynerweb.arquivos.service;
 
+import br.com.raynerweb.arquivos.component.AntivirusComponent;
 import br.com.raynerweb.arquivos.dto.ArquivoResponse;
 import br.com.raynerweb.arquivos.entity.Arquivo;
+import br.com.raynerweb.arquivos.exception.VirusDetectedException;
 import br.com.raynerweb.arquivos.repository.ArquivoRepository;
 import br.com.raynerweb.arquivos.repository.SistemaArquivosRepository;
 import org.apache.commons.io.FileUtils;
@@ -21,7 +23,9 @@ import java.net.MalformedURLException;
 import java.util.Date;
 
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -33,6 +37,9 @@ public class ArquivoServiceTest {
 
     @Mock
     private SistemaArquivosRepository sistemaArquivosRepository;
+
+    @Mock
+    private AntivirusComponent antivirus;
 
     @InjectMocks
     private ArquivoService service;
@@ -49,8 +56,10 @@ public class ArquivoServiceTest {
         service.salvar(new MultipartFile[]{file});
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = VirusDetectedException.class)
     public void arquivoInfectadoNaoPodeSerSalvo() throws IOException {
+        doThrow(VirusDetectedException.class).when(antivirus).verifyMultipartFile(any());
+
         File virus = new File("src/test/resources/virus.txt");
         MockMultipartFile file
                 = new MockMultipartFile(

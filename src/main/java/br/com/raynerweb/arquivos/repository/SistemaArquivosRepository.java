@@ -1,10 +1,8 @@
 package br.com.raynerweb.arquivos.repository;
 
-import br.com.raynerweb.arquivos.component.AntivirusComponent;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,19 +16,13 @@ public class SistemaArquivosRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(SistemaArquivosRepository.class);
 
-    @Autowired
-    private AntivirusComponent antivirus;
-
     @Value("${arquivo.destino}")
     private String destino;
 
     public void salvar(MultipartFile multipartFile) {
         LOG.warn("SALVANDO ARQUIVO PADRAO");
         try {
-            antivirus.verify(multipartFile.getBytes());
-
             criarDiretorioDestino();
-
             File file = new File(destino, Objects.requireNonNull(multipartFile.getOriginalFilename()));
             FileUtils.writeByteArrayToFile(file, multipartFile.getBytes());
         } catch (IOException e) {
