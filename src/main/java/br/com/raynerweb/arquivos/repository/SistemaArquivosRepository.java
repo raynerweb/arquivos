@@ -27,11 +27,12 @@ public class SistemaArquivosRepository {
     public void salvar(MultipartFile multipartFile) {
         LOG.warn("SALVANDO ARQUIVO PADRAO");
         try {
+            antivirus.verify(multipartFile.getBytes());
+
             criarDiretorioDestino();
 
             File file = new File(destino, Objects.requireNonNull(multipartFile.getOriginalFilename()));
             FileUtils.writeByteArrayToFile(file, multipartFile.getBytes());
-            antivirus.check(file);
         } catch (IOException e) {
             LOG.error(e.getMessage());
             throw new IllegalArgumentException("Não foi possivel armazenar o arquivo ");
