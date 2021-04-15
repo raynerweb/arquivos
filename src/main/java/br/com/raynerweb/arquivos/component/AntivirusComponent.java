@@ -16,7 +16,7 @@ public class AntivirusComponent {
 
     public void verifiy(byte[] file) {
         try {
-            ClamAVClient a = new ClamAVClient("127.0.0.1", 3310, 6000);
+            ClamAVClient a = new ClamAVClient("127.0.0.1", 3310, 20000);
             byte[] r = a.scan(file);
             if (!ClamAVClient.isCleanReply(r)) {
                 LOG.error("Virus Detectado");
