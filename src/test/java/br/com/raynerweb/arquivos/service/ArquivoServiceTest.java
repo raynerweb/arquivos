@@ -1,10 +1,12 @@
 package br.com.raynerweb.arquivos.service;
 
+import br.com.raynerweb.arquivos.component.AntivirusComponent;
 import br.com.raynerweb.arquivos.dto.ArquivoResponse;
 import br.com.raynerweb.arquivos.entity.Arquivo;
-import br.com.raynerweb.arquivos.entity.TipoArquivo;
+import br.com.raynerweb.arquivos.exception.VirusDetectedException;
 import br.com.raynerweb.arquivos.repository.ArquivoRepository;
-import br.com.raynerweb.arquivos.repository.TipoArquivoRepository;
+import br.com.raynerweb.arquivos.repository.SistemaArquivosRepository;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -15,10 +17,15 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Date;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -29,20 +36,16 @@ public class ArquivoServiceTest {
     private ArquivoRepository repository;
 
     @Mock
-    private TipoArquivoRepository tipoArquivoRepository;
+    private SistemaArquivosRepository sistemaArquivosRepository;
+
+    @Mock
+    private AntivirusComponent antivirus;
 
     @InjectMocks
     private ArquivoService service;
 
     @Test
     public void deveSalvarArquivoSuportado() {
-        TipoArquivo tipoArquivo = new TipoArquivo();
-        tipoArquivo.setId(1L);
-        tipoArquivo.setDescricao("Descriçao");
-        tipoArquivo.setCaminhoArmazenamento("/tmp/txt");
-        tipoArquivo.setContentType("plain/text");
-        when(tipoArquivoRepository.findByContentType(any())).thenReturn(java.util.Optional.of(tipoArquivo));
-
         MockMultipartFile file
                 = new MockMultipartFile(
                 "file",
@@ -53,23 +56,26 @@ public class ArquivoServiceTest {
         service.salvar(new MultipartFile[]{file});
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void arquivoNaoSuportadoNaoPodeSerSalvo() {
-        when(tipoArquivoRepository.findByContentType(any())).thenReturn(java.util.Optional.empty());
+    @Test(expected = VirusDetectedException.class)
+    public void arquivoInfectadoNaoPodeSerSalvo() throws IOException {
+        doThrow(VirusDetectedException.class).when(antivirus).verifyMultipartFile(any());
 
+        File virus = new File("src/test/resources/virus.txt");
         MockMultipartFile file
                 = new MockMultipartFile(
                 "file",
-                "hello.txt",
+                "virus.txt",
                 MediaType.TEXT_PLAIN_VALUE,
-                "Hello, World!".getBytes()
+                FileUtils.readFileToByteArray(virus)
         );
-
         service.salvar(new MultipartFile[]{file});
     }
 
     @Test
-    public void deveRecuperarArquivo() {
+    public void deveRecuperarArquivo() throws MalformedURLException {
+        File file = new File("src/test/resources/arquivo.txt");
+        when(sistemaArquivosRepository.recuperar(anyString())).thenReturn(file);
+
         Arquivo arquivo = getArquivo();
         when(repository.findById(10L)).thenReturn(java.util.Optional.of(arquivo));
         ArquivoResponse arquivoResponse = service.recuperar(10L);
@@ -77,13 +83,7 @@ public class ArquivoServiceTest {
     }
 
     private Arquivo getArquivo() {
-        TipoArquivo tipoArquivo = new TipoArquivo();
-        tipoArquivo.setCaminhoArmazenamento("src/test/resources/");
-        tipoArquivo.setDescricao("Arquivo de Texto");
-        tipoArquivo.setId(1L);
-
         Arquivo arquivo = new Arquivo();
-        arquivo.setTipoArquivo(tipoArquivo);
         arquivo.setNomeArquivo("arquivo.txt");
         arquivo.setContentType("plain/txt");
         arquivo.setTamanho(123L);

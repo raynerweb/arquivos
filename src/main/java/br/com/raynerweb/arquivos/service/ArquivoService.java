@@ -1,10 +1,10 @@
 package br.com.raynerweb.arquivos.service;
 
+import br.com.raynerweb.arquivos.component.AntivirusComponent;
 import br.com.raynerweb.arquivos.dto.ArquivoResponse;
 import br.com.raynerweb.arquivos.entity.Arquivo;
-import br.com.raynerweb.arquivos.entity.TipoArquivo;
-import br.com.raynerweb.arquivos.repository.ArquivoBinarioRepository;
 import br.com.raynerweb.arquivos.repository.ArquivoRepository;
+import br.com.raynerweb.arquivos.repository.SistemaArquivosRepository;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,16 +27,10 @@ public class ArquivoService {
     private ArquivoRepository arquivoRepository;
 
     @Autowired
-    private ArquivoBinarioRepository arquivoBinarioRepository;
+    private SistemaArquivosRepository sistemaArquivosRepository;
 
-    /**
-     * READ
-     * (S) OLID :: Single Responsibility Principle
-     * O metodo de recuperar tipoArquivo pertence à service TipoArquivo
-     * e sua regra de recuperacao nao deve estar aqui
-     */
     @Autowired
-    private TipoArquivoService tipoArquivoService;
+    private AntivirusComponent antivirus;
 
     @Transactional
     public void salvar(MultipartFile[] files) {
@@ -48,28 +42,31 @@ public class ArquivoService {
     public ArquivoResponse recuperar(Long idArquivo) {
         try {
             Arquivo arquivo = arquivoRepository.findById(idArquivo).orElseThrow(() -> new IllegalArgumentException("Arquivo não encontrado"));
-            String caminhoArquivo = arquivo.getTipoArquivo().getCaminhoArmazenamento() + arquivo.getNomeArquivo();
-            return new ArquivoResponse(FileUtils.readFileToByteArray(new File(caminhoArquivo)), arquivo.getNomeArquivo(), arquivo.getContentType());
+            File arquivoFisico = sistemaArquivosRepository.recuperar(arquivo.getNomeArquivo());
+            return new ArquivoResponse(FileUtils.readFileToByteArray(arquivoFisico), arquivo.getNomeArquivo(), arquivo.getContentType());
         } catch (FileNotFoundException e) {
-            throw new IllegalArgumentException("Arquivo não encontrado");
+            String message = "Arquivo não encontrado";
+            LOG.error(message);
+            throw new IllegalArgumentException(message);
         } catch (IOException e) {
-            throw new IllegalArgumentException("Falha ao carrefar arquivo");
+            String message = "Falha ao carrefar arquivo";
+            LOG.error(message);
+            throw new IllegalArgumentException(message);
         }
     }
 
     private void salvar(MultipartFile multipartFile) {
-        TipoArquivo tipoArquivo = tipoArquivoService.getTipoArquivo(multipartFile.getContentType());
-        arquivoBinarioRepository.salvar(multipartFile, tipoArquivo);
-        salvarArquivo(multipartFile, tipoArquivo);
+        antivirus.verifyMultipartFile(multipartFile);
+        sistemaArquivosRepository.salvar(multipartFile);
+        salvarArquivo(multipartFile);
     }
 
-    private void salvarArquivo(MultipartFile multipartFile, TipoArquivo tipoArquivo) {
+    private void salvarArquivo(MultipartFile multipartFile) {
         Arquivo arquivo = new Arquivo();
         arquivo.setContentType(multipartFile.getContentType());
         arquivo.setDataHoraUpload(new Date());
         arquivo.setNomeArquivo(multipartFile.getOriginalFilename());
         arquivo.setTamanho(multipartFile.getSize());
-        arquivo.setTipoArquivo(tipoArquivo);
         arquivoRepository.save(arquivo);
     }
 

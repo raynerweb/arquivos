@@ -1,8 +1,9 @@
-package br.com.raynerweb.arquivos.repository.strategy;
+package br.com.raynerweb.arquivos.repository;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,16 +12,17 @@ import java.io.IOException;
 import java.util.Objects;
 
 @Component
-public class PadraoStrategy implements ArquivoBinarioStrategy {
+public class SistemaArquivosRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PadraoStrategy.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SistemaArquivosRepository.class);
 
-    @Override
-    public void salvar(MultipartFile multipartFile, String destino) {
+    @Value("${arquivo.destino}")
+    private String destino;
+
+    public void salvar(MultipartFile multipartFile) {
         LOG.warn("SALVANDO ARQUIVO PADRAO");
         try {
-            criarDiretorioDestino(destino);
-
+            criarDiretorioDestino();
             File file = new File(destino, Objects.requireNonNull(multipartFile.getOriginalFilename()));
             FileUtils.writeByteArrayToFile(file, multipartFile.getBytes());
         } catch (IOException e) {
@@ -29,7 +31,11 @@ public class PadraoStrategy implements ArquivoBinarioStrategy {
         }
     }
 
-    private void criarDiretorioDestino(String destino) {
+    public File recuperar(String nomeArquivo) {
+        return new File(destino, nomeArquivo);
+    }
+
+    private void criarDiretorioDestino() {
         File path = new File(destino);
         if (!path.exists()) {
             if (!path.mkdir()) {

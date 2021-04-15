@@ -26,11 +26,6 @@ public class Arquivo {
     @Temporal(TemporalType.TIMESTAMP)
     private Date dataHoraUpload;
 
-    @ManyToOne
-    @JoinColumn(name = "COD_TIPO_ARQUIVO", nullable = false,
-            referencedColumnName = "COD_TIPO_ARQUIVO", foreignKey = @ForeignKey(name = "FK_TB_ARQUIVO_COD_TIPO_ARQUIVO"))
-    private TipoArquivo tipoArquivo;
-
     public Long getId() {
         return id;
     }
@@ -74,11 +69,4 @@ public class Arquivo {
         this.dataHoraUpload = new Date(dataHoraUpload.getTime());
     }
 
-    public TipoArquivo getTipoArquivo() {
-        return tipoArquivo;
-    }
-
-    public void setTipoArquivo(TipoArquivo tipoArquivo) {
-        this.tipoArquivo = tipoArquivo;
-    }
 }
