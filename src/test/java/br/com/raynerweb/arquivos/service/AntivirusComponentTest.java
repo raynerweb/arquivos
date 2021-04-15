@@ -2,6 +2,7 @@ package br.com.raynerweb.arquivos.service;
 
 import br.com.raynerweb.arquivos.component.AntivirusComponent;
 import br.com.raynerweb.arquivos.exception.VirusDetectedException;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -10,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+@Ignore
 public class AntivirusComponentTest {
 
     @Test(expected = VirusDetectedException.class)

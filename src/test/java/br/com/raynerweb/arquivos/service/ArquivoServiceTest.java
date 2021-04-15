@@ -7,6 +7,7 @@ import br.com.raynerweb.arquivos.exception.VirusDetectedException;
 import br.com.raynerweb.arquivos.repository.ArquivoRepository;
 import br.com.raynerweb.arquivos.repository.SistemaArquivosRepository;
 import org.apache.commons.io.FileUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
+@Ignore
 public class ArquivoServiceTest {
 
     @Mock
