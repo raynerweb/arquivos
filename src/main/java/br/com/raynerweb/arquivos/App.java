@@ -9,9 +9,6 @@ import java.io.IOException;
 public class App {
 
     public static void main(String[] args) throws IOException {
-//        String cmd = "/bootstrap.sh &";
-//        Runtime run = Runtime.getRuntime();
-//        run.exec(cmd);
         SpringApplication.run(App.class, args);
     }
 
