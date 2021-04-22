@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class ArquivoService {
@@ -39,6 +40,10 @@ public class ArquivoService {
         }
     }
 
+    public List<Arquivo> recuperarTodos() {
+        return arquivoRepository.findAll();
+    }
+
     public ArquivoResponse recuperar(Long idArquivo) {
         try {
             Arquivo arquivo = arquivoRepository.findById(idArquivo).orElseThrow(() -> new IllegalArgumentException("Arquivo não encontrado"));
@@ -57,7 +62,7 @@ public class ArquivoService {
 
     private void salvar(MultipartFile multipartFile) {
         antivirus.verifyMultipartFile(multipartFile);
-        sistemaArquivosRepository.salvar(multipartFile);
+//        sistemaArquivosRepository.salvar(multipartFile);
         salvarArquivo(multipartFile);
     }
 

@@ -1,6 +1,7 @@
 package br.com.raynerweb.arquivos.rest;
 
 import br.com.raynerweb.arquivos.dto.ArquivoResponse;
+import br.com.raynerweb.arquivos.entity.Arquivo;
 import br.com.raynerweb.arquivos.service.ArquivoService;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/arquivos")
@@ -21,6 +23,11 @@ public class ArquivoRest {
     @PostMapping
     public void post(@RequestParam("files") MultipartFile[] files) {
         arquivoService.salvar(files);
+    }
+
+    @GetMapping
+    public List<Arquivo> getList() {
+        return arquivoService.recuperarTodos();
     }
 
     @GetMapping("{id}")
