@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -32,6 +33,7 @@ public class ArquivoService {
     @Autowired
     private AntivirusComponent antivirus;
 
+    @Transactional
     public void salvar(MultipartFile[] files) {
         for (MultipartFile file : files) {
             this.salvar(file);
@@ -61,7 +63,7 @@ public class ArquivoService {
     private void salvar(MultipartFile multipartFile) {
         antivirus.verifyMultipartFile(multipartFile);
 //        sistemaArquivosRepository.salvar(multipartFile);
-//        salvarArquivo(multipartFile);
+        salvarArquivo(multipartFile);
     }
 
     private void salvarArquivo(MultipartFile multipartFile) {
