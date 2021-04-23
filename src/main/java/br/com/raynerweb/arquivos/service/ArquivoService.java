@@ -61,7 +61,7 @@ public class ArquivoService {
     private void salvar(MultipartFile multipartFile) {
         antivirus.verifyMultipartFile(multipartFile);
 //        sistemaArquivosRepository.salvar(multipartFile);
-        salvarArquivo(multipartFile);
+//        salvarArquivo(multipartFile);
     }
 
     private void salvarArquivo(MultipartFile multipartFile) {
