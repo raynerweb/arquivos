@@ -33,7 +33,7 @@ public class ArquivoService {
     @Autowired
     private AntivirusComponent antivirus;
 
-    @Transactional
+//    @Transactional
     public void salvar(MultipartFile[] files) {
         for (MultipartFile file : files) {
             this.salvar(file);
@@ -63,7 +63,7 @@ public class ArquivoService {
     private void salvar(MultipartFile multipartFile) {
         antivirus.verifyMultipartFile(multipartFile);
 //        sistemaArquivosRepository.salvar(multipartFile);
-        salvarArquivo(multipartFile);
+//        salvarArquivo(multipartFile);
     }
 
     private void salvarArquivo(MultipartFile multipartFile) {
